@@ -17,14 +17,29 @@ and on Marlin [Artillery Sidewinder X1 config](https://github.com/MarlinFirmware
 
 There is also an [optimized firmware for Artillery Sidewinder X1 touch display](https://github.com/pinguinpfleger/ASWX1-TFTFW-MOD) which you can install too but it is optional.  
 
-## Releases  
-**20.03.2020** [ASWX1-FW-MOD-v1.2](https://github.com/pinguinpfleger/ASWX1-FW-MOD/releases/tag/ASWX1-FW-MOD-v1.2) - [ASWX1-FW-MOD-v1.2.zip](https://github.com/pinguinpfleger/ASWX1-FW-MOD/releases/download/ASWX1-FW-MOD-v1.2/ASWX1-FW-MOD-v1.2.zip)  based on Marlin 2.0.5.1  
+## This Fork
 
-**07.03.2020** [ASWX1-FW-MOD-v1.1](https://github.com/pinguinpfleger/ASWX1-FW-MOD/releases/tag/ASWX1-FW-MOD-v1.1) - [ASWX1-FW-MOD-v1.1.zip](https://github.com/pinguinpfleger/ASWX1-FW-MOD/releases/download/ASWX1-FW-MOD-v1.1/ASWX1-FW-MOD-v1.1.zip)  based on Marlin 2.0.4.4  
-*Maintained some basic changes (e.g. the possibility to store babystepping)*  
-  
-**29.02.2020** [ASWX1-FW-MOD-v1.0](https://github.com/pinguinpfleger/ASWX1-FW-MOD/releases/tag/ASWX1-FW-MOD-v1.0) - [ASWX1-FW-MOD-v1.0.zip](https://github.com/pinguinpfleger/ASWX1-FW-MOD/releases/download/ASWX1-FW-MOD-v1.0/ASWX1-FW-MOD-v1.0.zip)  based on Marlin 2.0.4.4  
-   
+This fork is configured for my Artillery Sidewinder X1 with these hardware assumptions:
+
+- Stock Artillery Sidewinder X1 mainboard and motion hardware
+- No BLTouch or other bed probe
+- All-metal hotend
+- 100k hotend thermistor using Marlin `TEMP_SENSOR_0 1`
+
+Local firmware changes:
+
+- Hotend maximum temperature is set to `300C`
+- Hotend thermal protection hysteresis is set to `6C`
+- PLA preheat is set to `260C` hotend and `60C` bed
+- PETG preheat is set to `260C` hotend and `60C` bed
+- The active `mega2560` PlatformIO environment has the obsolete `TMC26XStepper` dependency removed, because the old URL returns 404 and this stock Sidewinder X1 build does not need it
+
+The precompiled firmware for this setup is:
+
+```text
+ASWX1-FW-MOD-allmetal-300C.hex
+```
+
 ## Improvements  
 
 1. **Save to EEPROM**  
@@ -61,6 +76,60 @@ Examples can be found in the links below.
   
 Of course the firmware must be recompiled than.  
 There are serveral ways to compile.
+
+### Recreate This Fork's Changes
+
+These are the basic tools and steps used to create this firmware from the original project:
+
+1. Install [Git for Windows](https://git-scm.com/download/win).
+2. Install Python, then install PlatformIO:
+
+```powershell
+py -m pip install --user -U platformio
+```
+
+3. Fork the original repository on GitHub, then clone your fork:
+
+```powershell
+git clone https://github.com/YOUR_USERNAME/YOUR_FORK_NAME.git
+cd YOUR_FORK_NAME
+```
+
+4. Edit the configuration files:
+
+- `Marlin/Configuration.h`
+  - Set `HEATER_0_MAXTEMP` to `300`
+  - Keep `TEMP_SENSOR_0 1` for a standard 100k thermistor
+  - Set `PREHEAT_1_LABEL` to `"PLA"`
+  - Set `PREHEAT_1_TEMP_HOTEND` to `260`
+  - Set `PREHEAT_1_TEMP_BED` to `60`
+  - Set `PREHEAT_2_LABEL` to `"PETG"`
+  - Set `PREHEAT_2_TEMP_HOTEND` to `260`
+  - Set `PREHEAT_2_TEMP_BED` to `60`
+- `Marlin/Configuration_adv.h`
+  - Set `THERMAL_PROTECTION_HYSTERESIS` to `6`
+- `platformio.ini`
+  - In `[env:mega2560]`, remove the old `TMC26XStepper=https://github.com/trinamic/TMC26XStepper/archive/master.zip` line if the build fails with a 404
+
+5. Compile the firmware:
+
+```powershell
+py -m platformio run
+```
+
+6. Copy the compiled firmware to a friendly filename:
+
+```powershell
+Copy-Item .pio\build\mega2560\firmware.hex ASWX1-FW-MOD-allmetal-300C.hex -Force
+```
+
+7. Commit and push the changes:
+
+```powershell
+git add Marlin/Configuration.h Marlin/Configuration_adv.h platformio.ini ASWX1-FW-MOD-allmetal-300C.hex
+git commit -m "Update Sidewinder X1 all-metal hotend firmware"
+git push
+```
 
 \[Linux / Mac\]  
 An easy one is [platformio CLI](https://docs.platformio.org/en/latest/installation.html#installation-methods) command.  
