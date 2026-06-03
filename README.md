@@ -30,9 +30,10 @@ Local firmware changes:
 
 - Hotend maximum temperature is set to `300C`
 - Hotend thermal protection hysteresis is set to `6C`
-- PLA preheat is set to `260C` hotend and `60C` bed
+- PLA preheat is set to `225C` hotend and `60C` bed
 - PETG preheat is set to `260C` hotend and `60C` bed
 - The active `mega2560` PlatformIO environment has the obsolete `TMC26XStepper` dependency removed, because the old URL returns 404 and this stock Sidewinder X1 build does not need it
+- GitHub Actions workflows from the upstream Marlin project were removed from this fork to avoid unnecessary scheduled or pull-request automation
 
 The precompiled firmware for this setup is:
 
@@ -101,7 +102,7 @@ cd YOUR_FORK_NAME
   - Set `HEATER_0_MAXTEMP` to `300`
   - Keep `TEMP_SENSOR_0 1` for a standard 100k thermistor
   - Set `PREHEAT_1_LABEL` to `"PLA"`
-  - Set `PREHEAT_1_TEMP_HOTEND` to `260`
+  - Set `PREHEAT_1_TEMP_HOTEND` to `225`
   - Set `PREHEAT_1_TEMP_BED` to `60`
   - Set `PREHEAT_2_LABEL` to `"PETG"`
   - Set `PREHEAT_2_TEMP_HOTEND` to `260`
@@ -130,6 +131,8 @@ git add Marlin/Configuration.h Marlin/Configuration_adv.h platformio.ini ASWX1-F
 git commit -m "Update Sidewinder X1 all-metal hotend firmware"
 git push
 ```
+
+8. For this personal fork, remove or disable the upstream Marlin GitHub Actions workflows under `.github/workflows`. They are useful for Marlin project development, but they are not needed for a local Sidewinder X1 firmware fork and can introduce avoidable third-party automation risk.
 
 \[Linux / Mac\]  
 An easy one is [platformio CLI](https://docs.platformio.org/en/latest/installation.html#installation-methods) command.  
